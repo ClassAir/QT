@@ -12,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         qDebug()<< "NET_DVR_Init error;error number is " <<NET_DVR_GetLastError();
         QMessageBox::warning(this,"error","NET_DVR_Init error;error number is "+QString::number(NET_DVR_GetLastError()));
-        return isok;
     }
     //设置连接时间与重连时间
     NET_DVR_SetConnectTime(2000, 1);
@@ -23,13 +22,26 @@ MainWindow::MainWindow(QWidget *parent) :
     if(userID<0)
     {
         qDebug() << "NET_DVR_Login_V30 error;" << "error number is " << NET_DVR_GetLastError();
-        QMessageBox::warning(this,"error","NET_DVR_Login_V30 error;error number "+QString::number(NET_DVR_GetLastError()));
+        QMessageBox::warning(this,"error",
+                             "NET_DVR_Login_V30 error;error number "+QString::number(NET_DVR_GetLastError()));
         return;
     }
     qDebug()<<"Login Success,userID:" << userID<<endl;
-    QTimer timer=new QTimer;
-    connect(timer,SIGNAL(QTimer::timeout()),this,SLOT(MainWindowOnClickedCapture()));
-    connect(ui->pushButton,SIGNAL(QPushButton::clicked()),this,SLOT(MainWindow::play()))
+    this->inSocket=new QTcpSocket;
+    this->outSocket=new QTcpSocket;
+    this->timer=new QTimer;
+    this->IPAddress="127.0.0.1";//先使用本机地址
+    inPort=6666,outPort=6666;//为输入端口和输出端口
+    inSocket->abort();
+    outSocket->connectToHost(IPAddress,inPort);
+    inSocket->abort();
+    outSocket->connectToHost(IPAddress,outPort);//进行连接
+    connect(inSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(displayError(QAbstractSocket::SocketError)));
+    connect(outSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(displayError(QAbstractSocket::SocketError)));
+    connect(timer,SIGNAL(QTimer::timeout()),this,SLOT(MainWindow::OnClickedCapture()));
+    connect(ui->pushButton,SIGNAL(QPushButton::clicked()),this,SLOT(MainWindow::play()));
 }
 
 MainWindow::~MainWindow()
@@ -61,10 +73,9 @@ void MainWindow::OnClickedCapture()
         QDateTime current_date_time =QDateTime::currentDateTime();
         QString current_date =current_date_time.toString("yyyy-MM-dd_hh-mm-ss_zzz");
         current_date="C:\\Picture\\"+current_date+".jpg";
-        char*  fileName;
+        char *fileName;
         QByteArray ba = current_date.toLatin1(); // must
         fileName=ba.data();
-
         if(NET_DVR_CaptureJPEGPicture(userID,1,&IpJpegPara2,fileName)==false)
         {
             qDebug() << "NET_DVR_CaptureJPEGPicture error;" << "error number is " << NET_DVR_GetLastError();
@@ -72,6 +83,7 @@ void MainWindow::OnClickedCapture()
             return;
         }
         qDebug() <<"Capture Success!"<<endl;
+        SendPic(current_date);//将保存的图片发送
     }
 }
 
@@ -95,4 +107,20 @@ long MainWindow::play(HWND hWnd, NET_DVR_PREVIEWINFO struPlayInfo)
         return -1;
     }
     return IRealPlayHandle;
+}
+
+void MainWindow::SendPic(QString picPath){
+    QPixmap picture(picPath);
+    QByteArray img=QByteArray();
+    QByteArray img64=QByteArray();
+    QJsonDocument imgJD;
+    QJsonObject imgJO;
+    QBuffer buffer(&img);
+    buffer.open(QIODevice::WriteOnly);
+    picture.save(&buffer,"jpg",0);
+    img64=img.toBase64();
+    imgJO.insert("img",QJsonValue::fromVariant(img64));
+    imgJD.setObject(imgJO);
+    QByteArray dataArray=imgJD.toJson();
+    outSocket->write(dataArray);
 }
