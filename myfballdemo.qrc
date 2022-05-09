@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/handle.png</file>
+        <file>images/handlePress.png</file>
+        <file>images/background.png</file>
+        <file>images/QQ截图1.png</file>
+        <file>images/QQ截图2.png</file>
+        <file>images/QQ截图3.png</file>
+        <file>images/QQ截图4.png</file>
+        <file>images/QQ截图5.png</file>
+    </qresource>
+</RCC>

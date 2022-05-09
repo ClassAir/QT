@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QTimer>
+#include <QTcpSocket>
 namespace Ui {
 class MainWindow;
 }
@@ -24,6 +25,7 @@ private:
     long play(HWND hWnd, NET_DVR_PREVIEWINFO struPlayInfo);
     long userID;
     long previewID;
+    Qtcp
 };
 
 #endif // MAINWINDOW_H
