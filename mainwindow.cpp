@@ -36,12 +36,15 @@ MainWindow::MainWindow(QWidget *parent) :
     outSocket->connectToHost(IPAddress,inPort);
     inSocket->abort();
     outSocket->connectToHost(IPAddress,outPort);//进行连接
+    inSocket->setSocketOption(QAbstractSocket::KeepAliveOption,"1"); //设置保持连接状态
+    outSocket->setSocketOption(QAbstractSocket::KeepAliveOption,"1"); //设置保持连接状态
     connect(inSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(displayError(QAbstractSocket::SocketError)));
     connect(outSocket, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(displayError(QAbstractSocket::SocketError)));
     connect(timer,SIGNAL(QTimer::timeout()),this,SLOT(MainWindow::OnClickedCapture()));
     connect(ui->pushButton,SIGNAL(QPushButton::clicked()),this,SLOT(MainWindow::play()));
+    connect(inSocket,SIGNAL(readyRead()),this,SLOT(ReceiveJson()));
 }
 
 MainWindow::~MainWindow()
@@ -123,4 +126,17 @@ void MainWindow::SendPic(QString picPath){
     imgJD.setObject(imgJO);
     QByteArray dataArray=imgJD.toJson();
     outSocket->write(dataArray);
+}
+
+void MainWindow::ReceiveJson(){
+      QByteArray json;
+      json=inSocket->read(inSocket->readBufferSize());  //读取json数据
+      QJsonParseError parseError;
+      QJsonDocument jsonDoc(QJsonDocument::fromJson(json,&parseError));
+      if(parseError.error==QJsonParseError::NoError)  //json格式是否正确
+        {
+            emit newJsonData(jsonDoc); //发送json数据信号
+        }
+      else
+            qDebug()<<"json format error:"<<parseError.errorString();
 }

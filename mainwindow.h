@@ -23,14 +23,16 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+signals:
+    void newJsonData(QJsonDocument);
 private slots:
     void OnClickedCapture();
-    void SendPic(QString);
-
+    void ReceiveJson();
 private:
     Ui::MainWindow *ui;
     bool uninitSDK();
     long play(HWND hWnd, NET_DVR_PREVIEWINFO struPlayInfo);
+    void SendPic(QString);
     long userID;
     long previewID;
     QTimer *timer;
