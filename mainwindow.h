@@ -5,6 +5,11 @@
 #include <QTimer>
 #include <QTcpSocket>
 #include <QDebug>
+#include <QtCharts>
+#include <QLineSeries>
+#include <QPieSeries>
+#include <QPolarChart>
+#include <QPainter>
 #include <QMessageBox>
 #include <QDateTime>
 #include <QJsonDocument>
@@ -23,6 +28,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void LineChart1();
+    void LineChart2();
+    void LineChart3();
+    void show_time();
 signals:
     void newJsonData(QJsonDocument);
 private slots:
@@ -35,12 +44,16 @@ private:
     void SendPic(QString);
     long userID;
     long previewID;
-    QTimer *timer;
+    QTimer *picTimer;
+    QTimer m_timer;
+    QTimer *pTimer;
     QString  IPAddress;
     quint16 inPort;
     quint16 outPort;
     QTcpSocket *inSocket;
     QTcpSocket *outSocket;
+
+    int picNum;
 };
 
 #endif // MAINWINDOW_H

@@ -2,15 +2,7 @@
 #include "widget.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QDesktopWidget>
-#include <QApplication>
-#include <QMenu>
-#include <QPropertyAnimation>
-#include <QMouseEvent>
-#include <QPainter>
-#include <QTimer>
-#include <QDebug>
-#include <QCoreApplication>
+
 //#define App (static_cast<application*>(QCoreApplication::instance()))
 FBallWidget::FBallWidget(QWidget *parent)
     : QWidget(parent)
@@ -46,7 +38,7 @@ FBallWidget::FBallWidget(QWidget *parent)
 
     QTimer* timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(OnCountSlot()));
-    timer->start(500);
+    timer->start(1000);
     //m_mainWindow = new MainWindow();
     //m_mainWindow->move(App->desktop()->screen()->rect().center() - m_mainWindow->rect().center());
    // m_mainWindow->showNormal();
@@ -95,7 +87,7 @@ void FBallWidget::mouseDoubleClickEvent(QMouseEvent * event)
 
 }
 
-void FBallWidget::enterEvent(QEvent *event)             //好东西
+void FBallWidget::enterEvent(QEvent *event)
 {
     int screenWidth = QApplication::desktop()->screenGeometry().width();
     if(this->geometry().x() + this->width() > screenWidth)
@@ -116,23 +108,25 @@ void FBallWidget::enterEvent(QEvent *event)             //好东西
 
 void FBallWidget::leaveEvent(QEvent *event)
 {
-//    int screenWidth = QApplication::desktop()->screenGeometry().width();
-//    if(this->geometry().x() + this->width() > screenWidth - 2)
-//    {
-//        QRect rect = this->geometry();
-//        rect.setX(screenWidth - 42);
+    int screenWidth = QApplication::desktop()->screenGeometry().width();
+    if(this->geometry().x() + this->width() > screenWidth - 2)
+    {
+        QRect rect = this->geometry();
+        rect.setX(screenWidth - 42);
 
-//        QPropertyAnimation *pAnimation = new QPropertyAnimation(this, "geometry");
-//        pAnimation->setStartValue(this->geometry());
-//        pAnimation->setEndValue(rect);
-//        pAnimation->setEasingCurve(QEasingCurve::Linear);
-//        pAnimation->start(QAbstractAnimation::DeleteWhenStopped);
-//        isHide = false;
-//    }
-//    m_over = false;
-//    update();
-    Q_UNUSED(event);
+        QPropertyAnimation *pAnimation = new QPropertyAnimation(this, "geometry");
+        pAnimation->setStartValue(this->geometry());
+        pAnimation->setEndValue(rect);
+        pAnimation->setEasingCurve(QEasingCurve::Linear);
+        pAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+        isHide = false;
+    }
+    m_over = false;
+    update();
+
     //this->hide();
+
+    Q_UNUSED(event);
     m_timer->start(1000);
 }
 

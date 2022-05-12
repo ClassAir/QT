@@ -1,7 +1,16 @@
-#ifndef FBALLWIDGET_H
+﻿#ifndef FBALLWIDGET_H
 #define FBALLWIDGET_H
 
 #include <QWidget>
+#include <QDesktopWidget>
+#include <QApplication>
+#include <QMenu>
+#include <QPropertyAnimation>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QTimer>
+#include <QDebug>
+#include <QCoreApplication>
 class MainWindow;
 class FBallWidget : public QWidget
 {
@@ -37,7 +46,7 @@ private:
     bool m_over;
     bool isHide;
     QTimer* m_timer;
-    int m_nMemOcc;
+    int m_nMemOcc;  //记录的人数
     MainWindow * m_mainWindow{nullptr};
 };
 
